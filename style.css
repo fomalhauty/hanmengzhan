@@ -84,7 +84,7 @@ footer {
 /* playlist */
 
 #playlist,audio{
-    width:300px;
+    width:500px;
 }
 .active a{
     color: gray;
