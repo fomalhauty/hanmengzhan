@@ -1,0 +1,150 @@
+body {
+    background-image: url("./bg.gif");
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-repeat:no-repeat;
+    font-family: iowan old style;
+    counter-reset: thm
+}
+h1 {
+    font-family: century;
+    text-align: center;
+    color: black;
+    border-bottom: 2px dotted gray;
+    height: 1.5em;
+}
+p {
+    font-size: 13pt;
+}
+img {
+    opacity: 0.9;
+}
+
+#courses li{
+    margin: 10px 0;
+}
+
+/* Navigation */
+nav {
+    list-style-type: none;
+    line-height:30px;
+    height:300px;
+    width:200px;
+    float:left;
+    padding-top:20px;
+    padding-left:40px;
+}
+
+nav a:link, 
+nav a:visited {
+    line-height:30px;
+    display: block;
+    width: 110px;
+    font-weight: bold;
+    color: black;
+    text-align: center;
+    padding: 5px;
+    text-decoration: none;
+}
+
+
+nav a:hover, 
+nav a:active, nav a.current {
+    border-radius: 0.5em;
+    background-color: lightblue;
+}
+
+
+/* End of navigation */
+
+
+
+section {
+    width:540px;
+    float:left;
+}
+footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
+}
+
+#wrapper {
+    margin-left:auto;
+    margin-right:auto;
+    width:800px;
+    overflow: auto;
+}
+
+
+/* playlist */
+
+#playlist,audio{
+    width:300px;
+}
+.active a{
+    color: gray;
+    text-decoration:none;}
+#playlist li a{
+    display:block;
+}
+
+
+
+/* theorem style */
+
+/*
+.blockhl {
+	border: 1px solid black;
+	background-color: #F0F8FF;
+    margin-left: 3em;
+    margin-right: 3em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+    
+.theorem {
+    display: block;
+    font-style: italic;
+}
+.theorem:before {
+    counter-increment: thm;
+    content: "Theorem " counter(thm) " ";
+    font-weight: bold;
+    font-style: normal;    
+}
+
+.lemma {
+    display: block;
+    font-style: italic;
+}
+.lemma:before {
+    content: "Lemma.";
+    font-weight: bold;
+    font-style: normal;
+}
+.proof {
+    display: block;
+    font-style: normal;
+}
+.proof:before {
+    content: "Proof.";
+    font-style: italic;
+}
+.proof:after {
+    content: "\25FC";
+    float:right;
+}
+.definition {
+    display: block;
+    font-style: normal;
+}
+.definition:before {
+    content: "Definition.";
+    font-weight: bold;
+    font-style: normal;
+}*/
