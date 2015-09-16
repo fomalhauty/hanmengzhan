@@ -87,6 +87,10 @@ footer {
 #playlist,audio{
     width:500px;
 }
+
+audio{
+    height:50px;
+}
 .active a{
     color: gray;
     text-decoration:none;}
