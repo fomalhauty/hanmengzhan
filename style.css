@@ -34,7 +34,7 @@ nav {
     width:200px;
     float:left;
     padding-top:20px;
-    padding-left:40px;
+    padding-left:35px;
 }
 
 nav a:link, 
@@ -62,7 +62,7 @@ nav a:active, nav a.current {
 
 
 section {
-    width:540px;
+    width:600px;
     float:left;
 }
 footer {
@@ -76,7 +76,7 @@ footer {
 #wrapper {
     margin-left:auto;
     margin-right:auto;
-    width:800px;
+    width:850px;
     height:2400px;
     overflow: auto;
 }
