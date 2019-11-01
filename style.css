@@ -22,6 +22,10 @@ img {
     opacity: 0.9;
 }
 
+#wide li{
+    margin: 6px 0;
+}
+
 #courses li{
     margin: 10px 0;
 }
