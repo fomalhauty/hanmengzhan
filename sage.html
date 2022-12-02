@@ -210,7 +210,7 @@ probs_vxs_marked= []
 lst_arcs_marked = arcs(Kn)
 for t in range(21):
     probs_vxs_marked_t = [0 for it in range(n)]
-    for j in range(l):
+    for j in range(n^2):
         tail = lst_arcs_marked[j][0]
         probs_vxs_marked_t[tail] = probs_vxs_marked_t[tail] + probs_arcs_marked[t][j]
     probs_vxs_marked.append(probs_vxs_marked_t)
