@@ -1,0 +1,374 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <meta name="description" content="Hanmeng (Harmony) Zhan, 
+                                          Simon Fraser University, Mathematics and Statistics, York Science Fellow; University of Waterloo, Combinatorics and Optimization, Ph.D." />      
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>SageMathCell</title>
+    <script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script>
+    <script>
+//    // Make a div with id 'mycell' a Sage cell
+//    sagecell.makeSagecell({inputLocation: '#mycell',
+//                           template:       sagecell.templates.minimal,
+//                           evalButtonText: 'Activate',
+//                           linked: true});
+    // Make *any* div with class 'compute' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+                           evalButtonText: 'Evaluate',
+                           linked: true});
+    // Make *any* div with class 'analysis' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.analysis',
+                           evalButtonText: 'Evaluate',
+                           linked: true});
+    </script>
+  </head>
+  <body>
+
+<h1>Discrete Quantum Walks</h1>
+
+<h2>Basics</h2>      
+Random walk on $P_n$
+<div class="compute"><script type="text/x-sage">
+n = 5
+X = graphs.PathGraph(n)
+A = X.am()
+D = diagonal_matrix(X.degree())
+M = D^(-1) * A
+rw_ini_vx = ceil((n-1)/2)
+rw_probs = [identity_matrix(n)[rw_ini_vx]]
+for it in range(20):
+    rw_probs.append(rw_probs[it] * M)
+X_vxs_pos = X.get_pos()
+x_pos, _ = zip(*X_vxs_pos.values())
+
+# round complex number
+def rd(x, pr = 6):
+    y = CC(x)
+    return round(real(y), pr) + i*round(imag(y), pr) 
+    
+@interact
+def _(t = slider(0, 20, step_size = 1)):
+    shades = [str(1 - rd(it)) for it in rw_probs[t]]
+    dc = {}
+    for v in range(n):
+        k = shades[v]
+        if k in dc.keys():
+            dc[k].append(v)
+        else:
+            dc[k] = [v]
+    p_shades = plot(X, pos = X_vxs_pos, xmin = min(x_pos)-1, xmax = max(x_pos)+2, vertex_colors = dc)
+    p_probs = sum(text(rd(rw_probs[t][v], 3), (X_vxs_pos[v][0], X_vxs_pos[v][1]-0.2), axes = False, xmin = min(x_pos)-1, xmax = max(x_pos)+2) for v in range(n))
+    show(p_shades + p_probs)
+    </script></div>
+    
+Line digraph
+<div class="compute"><script type="text/x-sage">
+Y = DiGraph(X)
+Z = Y.line_graph(labels = False)
+A = Z.am()
+
+# table from matrix with header
+def tbl_head(M, header_row, header_col, header_col_right = False):
+    lst = list(map(list, M.rows()))
+    if header_col_right:
+        lst_head = [lst[it] + [header_col[it]] for it in range(len(header_col))]
+        tbl = [header_row+[' ']]+lst_head
+    else:
+        lst_head = [[header_col[it]] + lst[it] for it in range(len(header_col))]
+        tbl = [[' ']+header_row]+lst_head
+    return table(tbl, align = 'center')
+
+# arcs
+def arcs(X):
+    Y = DiGraph(X)
+    return list(Y.edges(labels = False, sort = True))    
+    
+tbl_head(A, arcs(X), arcs(X))    
+    </script></div> 
+      
+    
+Quantum walk on $P_n$: transition matrix
+<div class="compute"><script type="text/x-sage">    
+# arc-reversal matrix
+def rev(X):
+    lst_arcs = arcs(X)
+    l = len(lst_arcs)
+    R = Matrix(l, l)
+    for it in range(l):
+        for j in range(l):
+            if (lst_arcs[it][0], lst_arcs[it][1]) == (lst_arcs[j][1], lst_arcs[j][0]):
+                R[it, j] = 1
+    return R     
+
+# DFT coin
+def DFT(deg):
+    return Matrix(deg, lambda j, k: exp(2*pi*i*j*k/deg) / sqrt(deg))
+
+S = rev(X)
+C = block_diagonal_matrix([DFT(it) for it in X.degree()])
+U = S*C
+tbl_head(U, arcs(X), arcs(X))
+    </script></div>         
+
+Quantum walk on $P_n$: states
+<div class="compute"><script type="text/x-sage">
+lst_arcs = arcs(X)
+l = len(lst_arcs)
+ini_arc = (ceil((n-1)/2), ceil((n+1)/2))
+states = [identity_matrix(CC, l)[lst_arcs.index(ini_arc)]]
+U = U.change_ring(CC)
+for it in range(20):
+    states.append(states[it] * U.T)
+Y_vxs_pos = Y.get_pos()
+coords = Y_vxs_pos.values()
+xmax = max(coords, key = lambda tup: tup[0])
+ymin = min(coords, key = lambda tup: tup[1])
+ymax = max(coords, key = lambda tup: tup[1])
+
+@interact
+def _(t = slider(0, 20, step_size = 1)):
+    edges_t = [(lst_arcs[a][0], lst_arcs[a][1], rd(states[t][a], 3)) for a in range(l)]
+    Y.delete_edges(Y.edges(sort = True))
+    Y.add_edges(edges_t) 
+    show(Y.plot(edge_labels = True, talk = True))
+    </script></div>
+    
+Quantum walk on $P_n$: probabilities over the arcs
+<div class="compute"><script type="text/x-sage">
+# squared modulus
+def sqmd(x):
+    return real(x)^2 + imag(x)^2    
+    
+probs_arcs = [it.apply_map(sqmd) for it in states]    
+
+@interact
+def _(t = slider(0, 20, step_size = 1)):
+    labeled_arcs = [(lst_arcs[a][0], lst_arcs[a][1], rd(probs_arcs[t][a], 3)) for a in range(l)]
+    lst_plots = []
+    for it in labeled_arcs:
+        Y.delete_edges(Y.edges(sort = True))
+        Y.add_edge(it)
+        Y.add_edge(it[1], it[0], '')
+        tup_color = tuple(Color(1-it[2], 1-it[2], 1-it[2]).darker(0.12))
+        lst_plots.append(Y.plot(edge_labels = True, edge_labels_background = tup_color, talk = True, axes = False))
+    show(sum(lst_plots))
+    </script></div>
+
+Quantum walk on $P_n$: probabilities on the vertices      
+<div class="compute"><script type="text/x-sage">
+probs_vxs = []
+for t in range(21):
+    probs_vxs_t = [0 for it in range(n)]
+    for j in range(l):
+        tail = lst_arcs[j][0]
+        probs_vxs_t[tail] = probs_vxs_t[tail] + probs_arcs[t][j]
+    probs_vxs.append(probs_vxs_t)
+
+@interact
+def _(t = slider(0, 20, step_size = 1)):
+    shades = [str(1 - rd(it)) for it in probs_vxs[t]]
+    dc = {}
+    for v in range(n):
+        k = shades[v]
+        if k in dc.keys():
+            dc[k].append(v)
+        else:
+            dc[k] = [v]
+    p_shades = plot(X, pos = X_vxs_pos, xmin = min(x_pos)-1, xmax = max(x_pos)+2, vertex_colors = dc)
+    p_probs_vxs = sum(text(rd(probs_vxs[t][v], 3), (X_vxs_pos[v][0], X_vxs_pos[v][1]-0.2), axes = False, xmin = min(x_pos)-1, xmax = max(x_pos)+2) for v in range(n))
+    show(p_shades + p_probs_vxs)    
+    </script></div>
+
+Grover's search
+<div class="compute"><script type="text/x-sage">
+# transition matrix of the arc-reversal walk with coin G for unmarked vertices, and coin -G for marked vertices
+def trans_marked_G(X, lst_marked):
+    lst_arcs = arcs(X)
+    l = len(lst_arcs)
+    U = Matrix(QQ, l, l)
+    for arc_row in lst_arcs:
+        deg = X.degree(arc_row[1])- 1 if X.has_loops() and arc_row[1] in X.loop_vertices() else X.degree(arc_row[1])
+        ind_row = lst_arcs.index(arc_row)
+        nboring_arcs = [it for it in lst_arcs if it[0] == arc_row[1]]
+        for arc_col in nboring_arcs: 
+            ind_col = lst_arcs.index(arc_col)
+            is_marked = arc_col[0] in lst_marked
+            if arc_row[0] == arc_col[1]:
+                U[ind_row, ind_col] = 1 - 2/deg if is_marked else 2/deg - 1
+            else:
+                U[ind_row, ind_col] = -2/deg if is_marked else 2/deg
+    return U 
+      
+Kn = graphs.CompleteGraph(n)
+Kn.allow_loops(True)
+Kn.add_edges([(v, v) for v in range(n)])
+
+U_marked = trans_marked_G(Kn, [0])
+states_marked = [vector(CC, [1/n for it in range(n^2)])]
+U_marked = U_marked.change_ring(CC)
+for it in range(20):
+    states_marked.append(states_marked[it] * U_marked.T)
+probs_arcs_marked = [it.apply_map(sqmd) for it in states_marked]  
+probs_vxs_marked= []
+lst_arcs_marked = arcs(X)
+for t in range(21):
+    probs_vxs_marked_t = [0 for it in range(n)]
+    for j in range(l):
+        tail = lst_arcs_marked[j][0]
+        probs_vxs_marked_t[tail] = probs_vxs_marked_t[tail] + probs_arcs_marked[t][j]
+    probs_vxs_marked.append(probs_vxs_marked_t)
+
+Kn_vxs_pos = Kn.get_pos()
+x_Kn_pos, _ = zip(*Kn_vxs_pos.values())
+
+@interact
+def _(t = slider(0, 20, step_size = 1)):
+    shades = [str(1 - rd(it)) for it in probs_vxs_marked[t]]
+    dc = {}
+    for v in range(n):
+        k = shades[v]
+        if k in dc.keys():
+            dc[k].append(v)
+        else:
+            dc[k] = [v]
+    p_shades = plot(Kn, pos = Kn_vxs_pos, xmin = min(x_Kn_pos)-1, xmax = max(x_Kn_pos)+2, vertex_colors = dc)
+    p_probs_vxs = sum(text(rd(probs_vxs_marked[t][v], 3), (Kn_vxs_pos[v][0], Kn_vxs_pos[v][1]-0.2), axes = False, xmin = min(x_Kn_pos)-1, xmax = max(x_Kn_pos)+2) for v in range(n))
+    show(p_shades + p_probs_vxs)    
+    </script></div>
+
+
+
+<h2>Spectral analysis</h2>   
+Graph spectra vs walk spectra
+<div class="analysis"><script type="text/x-sage">
+X = graphs.CirculantGraph(8, [1,3])
+A = X.am()
+grf_evs = A.eigenvalues()
+
+# arcs
+def arcs(X):
+    Y = DiGraph(X)
+    return list(Y.edges(labels = False, sort = True))  
+
+# transition matrix of the arc-reversal walk with Grover coins
+def trans_arg(X):
+    Y = DiGraph(X).line_graph(labels = False)
+    lst_arcs = Y.vertices(sort = True)
+    m = len(lst_arcs)
+    U = Matrix(QQ, m, m)
+    for arc_row in lst_arcs:
+        deg = X.degree(arc_row[1])
+        ind_row = lst_arcs.index(arc_row)
+        for arc_col in Y.neighbors_out(arc_row): # (arc_row, arc_col) is a walk of length 2
+            ind_col = lst_arcs.index(arc_col)
+            if arc_row[0] == arc_col[1]:
+                U[ind_row, ind_col] = 2/deg - 1
+            else:
+                U[ind_row, ind_col] = 2/deg
+    return U
+    
+U = trans_arg(X)
+walk_evs = U.eigenvalues()
+print("graph spectrum:", grf_evs)
+print("walk spectrum:", walk_evs)
+    </script></div>
+      
+Perfect state transfer
+<div class="analysis"><script type="text/x-sage">
+import scipy
+from scipy import linalg
+
+####### lin alg #######
+# partition list w.r.t. given precision and record indices; eps=0 if eps not given 
+def partn(lst, eps = 0):
+    dc = {lst[0]:[0]}
+    keys = [lst[0]]
+    for it in [1..len(lst) - 1]:
+        new_key = lst[it]
+        key_exists = False
+        for key in keys:
+            if abs(new_key - key) <= eps:
+                key_exists = True
+                dc[key].append(it)
+                break
+        if not key_exists:
+                dc[new_key] = [it]
+                keys.append(new_key)
+    return dc
+    
+# A is hermitian
+def spd_herm(A, evec = False):
+    eps = 1e-6 
+    n = A.nrows()
+    evs, evecs = linalg.eigh(A.change_ring(CC))
+    dc = partn(evs, eps)
+    Es = []
+    for ev in dc.keys():
+        emtx = Matrix(evecs[:, dc[ev]])
+        eproj = emtx*(emtx.H)
+        if evec:
+            Es.append((ev, Matrix(eproj), emtx))
+        else:
+            Es.append((ev, Matrix(eproj)))
+    return Es
+
+# M is normal
+def spd(M):
+    A = 1/2*(M + M.H)
+    B = i/2*(M.H - M)
+    Es_A = spd_herm(A, True)
+    Es_M = []
+    for it in Es_A:
+        C = (it[2].H)*B.change_ring(CC)*it[2]
+        Es_C = spd_herm(C)
+        for j in Es_C:
+            Es_M.append((it[0] + i*j[0], it[2]*j[1]*(it[2].H)))
+    return Es_M  
+    
+sp = spd(U)  
+
+# outgoing arcs of v
+def state_og(X, v):
+    n = X.num_verts()
+    deg = X.degree()[v]
+    L = arcs(X)
+    inds = [it for it in range(len(L)) if L[it][0] == v]
+    state = Matrix(CC, len(L), 1)
+    for it in inds:
+        state[it, 0] = 1/sqrt(deg)
+    return state
+
+state_0 = state_og(X, 0)
+Y = DiGraph(X)
+Y_vxs_pos = Y.get_pos()
+coords = Y_vxs_pos.values()
+xmax = max(coords, key = lambda tup: tup[0])
+ymin = min(coords, key = lambda tup: tup[1])
+ymax = max(coords, key = lambda tup: tup[1])
+lst_arcs = arcs(X)
+l = len(lst_arcs)
+
+# round complex number
+def rd(x, pr = 6):
+    y = CC(x)
+    return round(real(y), pr) + i*round(imag(y), pr) 
+
+@interact
+def _(t = slider(0, 10, step_size = 1)):
+    state_t = sum(rd(ev^t) * eproj  for ev, eproj in sp) * state_0
+    edges_t = [(lst_arcs[a][0], lst_arcs[a][1], rd(state_t[a][0], 3)) for a in range(l)]
+    Y.delete_edges(Y.edges(sort = True))
+    Y.add_edges(edges_t) 
+    show(Y.plot(edge_labels = True, talk = True))
+
+</script></div>
+      
+      
+   
+
+      
+      
+  </body>
+</html>
