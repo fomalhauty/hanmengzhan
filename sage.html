@@ -207,7 +207,7 @@ for it in range(20):
     states_marked.append(states_marked[it] * U_marked.T)
 probs_arcs_marked = [it.apply_map(sqmd) for it in states_marked]  
 probs_vxs_marked= []
-lst_arcs_marked = arcs(X)
+lst_arcs_marked = arcs(Kn)
 for t in range(21):
     probs_vxs_marked_t = [0 for it in range(n)]
     for j in range(l):
