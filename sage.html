@@ -9,11 +9,6 @@
     <title>SageMathCell</title>
     <script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script>
     <script>
-//    // Make a div with id 'mycell' a Sage cell
-//    sagecell.makeSagecell({inputLocation: '#mycell',
-//                           template:       sagecell.templates.minimal,
-//                           evalButtonText: 'Activate',
-//                           linked: true});
     // Make *any* div with class 'compute' a Sage cell
     sagecell.makeSagecell({inputLocation: 'div.compute',
                            evalButtonText: 'Evaluate',
@@ -243,7 +238,7 @@ def _(t = slider(0, 20, step_size = 1)):
 <h2>Spectral analysis</h2>   
 Graph spectra vs walk spectra
 <div class="analysis"><script type="text/x-sage">
-X = graphs.CirculantGraph(8, [1,3])
+X = graphs.CirculantGraph(6, [1,2])
 A = X.am()
 grf_evs = A.eigenvalues()
 
