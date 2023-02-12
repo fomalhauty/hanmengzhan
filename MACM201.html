@@ -1,0 +1,143 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <meta name="description" content="Hanmeng (Harmony) Zhan, 
+                                          Simon Fraser University, Mathematics and Statistics, Postdoc Fellow; University of Waterloo, Combinatorics and Optimization, Ph.D." />      
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>SageMathCell</title>
+    <script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script>
+    <script>
+    // Make *any* div with class 'compute' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+                           evalButtonText: 'Evaluate',
+                           linked: true});
+    // Make *any* div with class 'analysis' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.analysis',
+                           evalButtonText: 'Evaluate',
+                           linked: true});
+    </script>
+  </head>
+  <body>
+
+<h1>MACM 201, February 13</h1>
+
+Based on the excellent <a href="https://www.youtube.com/watch?v=mgooexYPNeQ&list=PLKXCdnugmHRnMBzkp9FwFjEmfhpQzUf2i&index=24">lecture recording</a> by Jamie Mulholland   
+      
+      <p style = "color:blueviolet">Warning: the cells in each section may be linked!</p>
+      
+<h2>Divide and Conquer Algorithms</h2>
+Pause at 5'59'': Bubblesort vs Mergesort
+<div class="compute"><script type="text/x-sage">
+f_B(n) = n*(n-1)/2
+f_M(n) = n*log(n, 2) - n + 1
+plot([f_B(n), f_M(n)], 1, 100, legend_label=['Bubblesort', 'Mergesort']) 
+# Experiment: replace 100 by a larger interger to see how much faster Mergesort is!
+    </script></div>
+    
+Pause at 12'13'': the merge function
+<div class="compute"><script type="text/x-sage">
+def merge(A, l, m, r):
+    # merge the sorted halves of A: A[l..m] and A[m+1..r] 
+    n1 = m - l + 1
+    n2 = r - m
+    # create temp left and right arrays from A 
+    L = [0] * (n1)
+    R = [0] * (n2)
+    
+    # copy data to temp arrays L[] and R[]
+    for i in range(0 , n1): 
+        L[i] = A[l + i]
+    for j in range(0 , n2):
+        R[j] = A[m + 1 + j] 
+        
+    i,j,k=0,0,l
+    while i<n1 and j<n2: # merge R and L back into A 
+        if L[i]<R[j]:
+            A[k]=L[i]; i+=1; k+=1 
+        else:
+            A[k]=R[j]; j+=1; k+=1
+    while i<n1: # copy remaining elements of R into A, if any
+        A[k]=L[i]; i+=1; k+=1
+    while j<n2: # copy remaining elements of L into A, if any
+        A[k]=R[j]; j+=1; k+=1
+    return A
+    
+A = [11, 8, 9, 4, 7, 1, 2, 3, 5, 6, 10]
+merge(A, 3, 4, 9) 
+# Question: how many comparison have we made in line 12?
+    </script></div> 
+      
+    
+Pause at 20'45'': the Mergesort algorithms
+<div class="compute"><script type="text/x-sage">    
+def mergeSort(A,l,r):
+    # l is left index and r is right index (usually l=0,r=len(A)-1),
+    # this will sort A[l], A[l+1], ..., A[r] into ascending order 
+    if r<=l: return # nothing to sort
+    m=(l+r)//2 # middle index to split array A into two halves 
+    mergeSort(A,l,m) # sort left half of A: A[l], ... , A[m] 
+    mergeSort(A,m+1,r) # sort right half of A: A[m+1], ... , A[r] 
+    merge(A,l,m,r) # merge sorted left and right halves back into A
+    return A
+    
+A=[20, 4, 14, 5, 22, 3, 30, 8, 6, 27]
+mergeSort(A, 3, 7)
+# Experiment: change l and r to mergesort more (or all) elements!
+    </script></div>         
+
+Pause at 43'46'': adding an array of numbers
+<div class="compute"><script type="text/x-sage">
+def Add(A):
+    # add A[0]+A[1]+A[2]+...+A[n-1]
+    n = len(A)
+    if n==1: return A[0]
+    n1 = n//2 # integer division
+    n2 = n-n1
+    s1 = Add(A[:n1]) # s1 = A[0] + A[1] + ... +A[n1-1]
+    s2 = Add(A[n1:]) # s2 = A[n1] + A[n1+1] + ... +A[n-1]
+    return s1+s2
+    
+A=[20, 4, 14, 5, 22, 3, 30, 8, 6, 27]
+Add(A)
+# Question: how many additions have we done from line 7 to line 9?
+    </script></div>
+
+
+
+<h2>Solving Recurrences Using Python's (SymPy) <tt>rsolve</tt> command</h2>   
+      
+The Fibonacci recurrence
+<div class="analysis"><script type="text/x-sage">
+# import the sympy library:
+from sympy import *
+f = Function('f')
+n = symbols('n',integer=True)
+re = f(n)-f(n-1)-f(n-2) 
+rsolve(re,f(n),{f(0):0, f(1):1})
+</script></div>
+      
+The towers of Hanoi recurrence
+<div class="analysis"><script type="text/x-sage">
+a = Function('a')
+n = symbols('n',integer=True)
+re = a(n)-2*a(n-1)-1 
+rsolve(re,a(n),{a(1):1})
+</script></div>
+      
+A second order recurrence
+<div class="analysis"><script type="text/x-sage">
+a = Function('a')
+n = symbols('n',integer=True) 
+re = a(n)-5*a(n-1)+6*a(n-2) 
+rsolve(re,a(n),{a(0):1,a(1):4})
+</script></div>
+      
+      
+   
+
+      
+      
+  </body>
+</html>
