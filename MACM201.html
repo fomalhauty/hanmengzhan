@@ -104,6 +104,29 @@ Add(A)
 # Question: how many additions have we done from line 7 to line 9?
     </script></div>
 
+A comment from Nils Bruin:
+       
+      <p>The instructions A[:n] and A[n:] actually construct sublists, so their cost is $O(n)$. So the run time of this algorithm will actually be worse, because the overhead in constructing extra data structures overwhelms the addition operations.</p>
+
+      <p>Balanced adding, as basically proposed, is actually difficult to justify: the cost of these additions hardly changes. For floats there is something to be managed, of course, but that's of an entirely different nature.</p>
+
+      <p>For a big product of integers there is actually a very good argument to be made for this, because assuming you start with a list of integers of approximately equal size, balanced products will lead to way more small (and hence cheaper) multiplications. But this isn't taken into account in the analysis here, of course :-).</p>
+      
+      The balanced adder in Python should look more like:
+<div class="compute"><script type="text/x-sage">
+def Add(L, start=0, end=-1):
+    # compute a sum of a list of integers using divide-and-conquer start, end indicate the sublist of L that needs to be summed. (default values are to sum the entire list)
+    if end == -1:
+        end = len(L)
+    if end <= start:
+        return 0 # empty list
+    if end == start+1:
+        return L[start]
+    split = start + (end-start)//2
+    S1 = Add(L, start, split)
+    S2 = Add(L, split, end)
+    return S1 + S2
+    </script></div>
 
 
 <h2>Solving Recurrences Using Python's (SymPy) <tt>rsolve</tt> command</h2>   
