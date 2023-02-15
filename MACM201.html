@@ -21,9 +21,9 @@
   </head>
   <body>
 
-<h1>MACM 201, February 13</h1>
+<h1>MACM 201, February 13 and February 15</h1>
 
-Based on the excellent <a href="https://www.youtube.com/watch?v=mgooexYPNeQ&list=PLKXCdnugmHRnMBzkp9FwFjEmfhpQzUf2i&index=24">lecture recording</a> by Jamie Mulholland   
+Based on these excellent <a href="https://www.youtube.com/watch?v=mgooexYPNeQ&list=PLKXCdnugmHRnMBzkp9FwFjEmfhpQzUf2i&index=24">lecture recordings</a> by Jamie Mulholland   
       
       <p style = "color:blueviolet">Warning: the cells in each section may be linked!</p>
       
@@ -157,8 +157,18 @@ re = a(n)-5*a(n-1)+6*a(n-2)
 rsolve(re,a(n),{a(0):1,a(1):4})
 </script></div>
       
+<h2>Examples of Generating Functions</h2>       
+<p>Pause at 11'00'': $a_1+a_2+a_3=7$ is equivalent to $x^{(a_1+a_2+a_3)}=x^7$, or, $x^{a_1} x^{a_2} x^{a_3} = x^7$. This translates a sum into a product.</p>
       
-   
+<p>Pause at 34'36'': Actually, if all we want is the coefficient $[x^9]$, the first sum need not stop at $x_9$, and the second sum need not stop at $x_8$. Can you see why
+\[
+[x^9](x+x^3+x^5+x^7+x^9+\cdots+x^{2k+1}+\cdots)(1+x^2+x^4+x^6+x^8+\cdots+x^{2k}+\cdots)(1+x^3+x^6)=[x^9](x_1+x_3+x_5+x_7+x_9)(1+x^2+x^4+x^6+x^8)(1+x^3+x^6)?
+\]
+    </p>
+
+<p>Pause at 40'50'': $Q(x)$ is a formal power series here, and we ignore questions on convergence. (If we thought of $Q(x)$ as a power series, we would insist that $|x|<1$.)</p>
+
+<p>Stop at 47'18''. I will continue when I am back.</p>
 
       
       
