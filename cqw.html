@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
+    <meta name="description" content="Hanmeng (Harmony) Zhan, 
+                                          Simon Fraser University, Mathematics and Statistics, York Science Fellow; University of Waterloo, Combinatorics and Optimization, Ph.D." />      
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>SageMathCell</title>
+    <script src="https://sagecell.sagemath.org/static/embedded_sagecell.js"></script>
+    <script>
+    // Make *any* div with class 'compute' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+                           evalButtonText: 'Evaluate',
+                           linked: true});
+    // Make *any* div with class 'analysis' a Sage cell
+    sagecell.makeSagecell({inputLocation: 'div.analysis',
+                           evalButtonText: 'Evaluate',
+                           linked: true});
+    </script>
+  </head>
+  <body>
+
+<h1>Algebraic Methods in Quantum Computing and Quantum Information</h1>
+      
+      <p>Back to my <a href="index.html">homepage</a></p>
+
+      
+     
+Quantum spin network
+<div class="compute"><script type="text/x-sage">
+n = 3
+X = graphs.PathGraph(n)
+A = X.adjacency_matrix()
+var('t')
+trans_mtx = exp(i*t*A)
+U_02 = trans_mtx[0,2]
+plot(abs(U_02), (t,0,2*pi))
+    
+    </script></div>
+    
+How to compute $\exp(itA)$
+<div class="compute"><script type="text/x-sage">
+import scipy
+from scipy import linalg
+
+####### lin alg #######
+# partition list w.r.t. given precision and record indices; eps=0 if eps not given 
+def partn(lst, eps = 0):
+    dc = {lst[0]:[0]}
+    keys = [lst[0]]
+    for it in [1..len(lst) - 1]:
+        new_key = lst[it]
+        key_exists = False
+        for key in keys:
+            if abs(new_key - key) <= eps:
+                key_exists = True
+                dc[key].append(it)
+                break
+        if not key_exists:
+                dc[new_key] = [it]
+                keys.append(new_key)
+    return dc
+    
+# spectral decomposition of a Hermitian matrix A
+def spd_herm(A, evec = False):
+    eps = 1e-6 
+    n = A.nrows()
+    evs, evecs = linalg.eigh(A.change_ring(CC))
+    dc = partn(evs, eps)
+    Es = []
+    for ev in dc.keys():
+        emtx = Matrix(evecs[:, dc[ev]])
+        eproj = emtx*(emtx.H)
+        if evec:
+            Es.append((ev, Matrix(eproj), emtx))
+        else:
+            Es.append((ev, Matrix(eproj)))
+    return Es 
+
+n = 3
+X = graphs.CompleteGraph(n)
+A = X.adjacency_matrix()
+sp = spd_herm(A)
+var('t')
+U_02 = sum([exp(i*t*ev)*eproj[0,2] for ev, eproj in sp])
+plot(abs(U_02), (t,0,2*pi))
+    </script></div> 
+      
+    
+      
+      
+   
+
+      
+      
+  </body>
+</html>
