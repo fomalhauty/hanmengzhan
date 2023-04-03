@@ -29,17 +29,15 @@
      
 Quantum spin network
 <div class="compute"><script type="text/x-sage">
-n = 3
-X = graphs.PathGraph(n)
+X = graphs.PathGraph(3)
 A = X.adjacency_matrix()
 var('t')
-trans_mtx = exp(i*t*A)
-U_02 = trans_mtx[0,2]
-plot(abs(U_02), (t,0,2*pi))
-    
+trans_mtx = exp(-i*t*A)
+U_20 = trans_mtx[2,0]
+plot(abs(U_20)^2, (t,0,4*pi))
     </script></div>
     
-How to compute $\exp(itA)$
+How to compute $\exp(-itA)$
 <div class="compute"><script type="text/x-sage">
 import scipy
 from scipy import linalg
@@ -78,13 +76,12 @@ def spd_herm(A, evec = False):
             Es.append((ev, Matrix(eproj)))
     return Es 
 
-n = 3
-X = graphs.CompleteGraph(n)
+X = graphs.CompleteGraph(3)
 A = X.adjacency_matrix()
 sp = spd_herm(A)
 var('t')
-U_02 = sum([exp(i*t*ev)*eproj[0,2] for ev, eproj in sp])
-plot(abs(U_02), (t,0,2*pi))
+U_20 = sum([exp(-i*t*ev)*eproj[0,2] for ev, eproj in sp])
+plot(abs(U_20), (t,0,2*pi))
     </script></div> 
       
     
