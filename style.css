@@ -42,6 +42,7 @@ nav {
 }
 
 nav a:link, 
+
 nav a:visited {
     line-height:30px;
     display: block;
@@ -63,7 +64,11 @@ nav a:active, nav a.current {
 
 /* End of navigation */
 
-
+a:link {
+  color: mediumblue;
+  background-color: transparent;
+  text-decoration: none;
+}
 
 section {
     width:580px;
@@ -81,7 +86,7 @@ footer {
     margin-left:auto;
     margin-right:auto;
     width:900px;
-    height:6000px;
+    height:7000px;
     overflow: auto;
 }
 
